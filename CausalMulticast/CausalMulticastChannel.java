@@ -144,7 +144,7 @@ public class CausalMulticastChannel {
         if (msg.startsWith("/users")) {
             System.out.println("Usuários: ");
             this.printArray(this.getConnectedUsers());
-        } else if (msg.startsWith("/delayed")) {
+        } else if (msg.startsWith("/delayList")) {
             System.out.println("Mensagens atrasadas: ");
             System.out.println(Collections.singletonList(this.getBannedMessages()));
         } else if (msg.startsWith("/clock")) {
