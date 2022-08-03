@@ -165,8 +165,10 @@ public class CausalMulticastChannel {
             String bannedIp = null;
 
             if (yesChars.contains(userDecision)) {
-                System.out.println("Digite o IP de quem deseja bloquear.");
-                bannedIp = scanner.nextLine();
+                this.printArray(this.getConnectedUsers());
+                System.out.println("Digite o numero de quem você quer bloquear:");
+                Integer index = Integer.parseInt(scanner.nextLine()) - 1;
+                bannedIp = this.getConnectedUsers().get(index);
             }
             this.sendMessage(msg, bannedIp);
         }
