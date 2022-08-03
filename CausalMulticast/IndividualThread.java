@@ -63,17 +63,17 @@ public class IndividualThread extends Thread {
 
         switch (message.getType()) {
             case Message.JOIN_MSG:
-                System.out.printf("[%s]: Entrou no chat!\n", message.getFrom());
-                this.addUserToConnectedUsers(message.getFrom());
-                this.cm.addUserToVectorClock(message.getFrom());
-                this.joinResponse(message.getFrom());
+                System.out.printf("[%s]: Entrou no chat!\n", message.getOrigin());
+                this.addUserToConnectedUsers(message.getOrigin());
+                this.cm.addUserToVectorClock(message.getOrigin());
+                this.joinResponse(message.getOrigin());
                 break;
             case Message.NORMAL_MSG:
                 this.cm.compareAndManageVectorsClock(message);
                 break;
             case Message.JOIN_USR_MSG:
-                this.addUserToConnectedUsers(message.getFrom());
-                this.cm.addUserToVectorClock(message.getFrom());
+                this.addUserToConnectedUsers(message.getOrigin());
+                this.cm.addUserToVectorClock(message.getOrigin());
                 break;
             default:
                 break;
@@ -82,20 +82,20 @@ public class IndividualThread extends Thread {
 
     /**
      * Adiciona o usuário na lista de usuários conectado caso a lista não contenha o mesmo
-     * @param from ip do usuário a ser adicionado
+     * @param origin ip do usuário a ser adicionado
      */
-    public void addUserToConnectedUsers(String from) {
-        if (!this.connectedUsers.contains(from)) {
-            this.connectedUsers.add(from);
+    public void addUserToConnectedUsers(String origin) {
+        if (!this.connectedUsers.contains(origin)) {
+            this.connectedUsers.add(origin);
         }
     }
 
     /**
      * Envia uma mensagem do tipo JOIN_USR_MSG para o usuário que conectou
-     * @param from ip do usuário que conectou
+     * @param origin ip do usuário que conectou
      * @throws IOException
      */
-    public void joinResponse(String from) throws IOException {
+    public void joinResponse(String origin) throws IOException {
         try {
             String ip = InetAddress.getLocalHost().getHostAddress();
             try (final DatagramSocket asocket = new DatagramSocket()) {
@@ -108,7 +108,7 @@ public class IndividualThread extends Thread {
             os.writeObject(message);
             byte[] buffer;
             buffer = output.toByteArray();
-            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, InetAddress.getByName(from), 2020);
+            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, InetAddress.getByName(origin), 2020);
             socket.send(packet);
 
         } catch (UnknownHostException e) {

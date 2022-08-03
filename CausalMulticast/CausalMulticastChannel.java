@@ -15,7 +15,7 @@ public class CausalMulticastChannel {
     MulticastSocket socket;
     private final DatagramSocket unicastSocket;
     private final VectorClock vectorClock;
-    // Buffer com as mensagens banidas que irão ser enviadas após o comando /sendDelayed
+    // Mensagens banidas que poderão ser enviadas após o comando /sendDelayed
     LinkedHashMap<Message, String> bannedMessages;
     // Buffer com as mensagens guardadas enquanto espera a sincronização
     ArrayList<Message> bufferMessages;
@@ -69,10 +69,10 @@ public class CausalMulticastChannel {
 
     /**
      * Adiciona usuário no vectorClock
-     * @param from ip a ser adicionado no vectorClock
+     * @param origin ip a ser adicionado no vectorClock
      */
-    protected void addUserToVectorClock(String from) {
-        vectorClock.createUser(from);
+    protected void addUserToVectorClock(String origin) {
+        vectorClock.createUser(origin);
     }
 
     /**
@@ -86,19 +86,21 @@ public class CausalMulticastChannel {
     protected void compareAndManageVectorsClock(Message msg) {
         boolean isEqual = this.vectorClock.compare(msg.getVectorClock());
 
-       System.out.println("Comparando vetor de " + msg.getFrom());
-       System.out.println(msg.getVectorClock());
-       System.out.println("Com o vetor local que esta: ");
-       System.out.println(this.vectorClock);
+    //    System.out.println("Comparando vetor de " + msg.getOrigin());
+    //    System.out.println(msg.getVectorClock());
+    //    System.out.println("Com o vetor local que esta: ");
+
 
         if (isEqual) {
-            this.vectorClock.incrementUser(msg.getFrom());
-            this.causalMulticast.deliver("[" + msg.getFrom() + "]: " + msg.getText());
+            this.vectorClock.incrementUser(msg.getOrigin());
+            this.causalMulticast.deliver("[" + msg.getOrigin() + "]: " + msg.getText());
             this.handleBufferMessages();
         } else {
             System.out.println("Guardando a mensagem: " + msg);
             this.bufferMessages.add(msg);
         }
+        System.out.println("Clocks:" + this.getVectorClock());
+        System.out.println("Buffer:" + this.bufferMessages);
     }
 
     /**
@@ -119,9 +121,9 @@ public class CausalMulticastChannel {
                 hasFoundMessageInBuffer = this.vectorClock.compare(bufferMsg.getVectorClock());
                 if (hasFoundMessageInBuffer) {
                     System.out.println("Incrementando o clock para receber uma mensagem delayed");
-                    this.vectorClock.incrementUser(bufferMsg.getFrom());
+                    this.vectorClock.incrementUser(bufferMsg.getOrigin());
                     this.bufferMessages.remove(bufferMsg);
-                    this.causalMulticast.deliver("[" + bufferMsg.getFrom() + "]: " + bufferMsg.getText());
+                    this.causalMulticast.deliver("[" + bufferMsg.getOrigin() + "]: " + bufferMsg.getText());
                 }
             }
         }
@@ -140,7 +142,7 @@ public class CausalMulticastChannel {
         Scanner scanner = new Scanner(System.in);
 
         if (msg.startsWith("/users")) {
-            System.out.println("Usuários conectados: ");
+            System.out.println("Usuários: ");
             this.printArray(this.getConnectedUsers());
         } else if (msg.startsWith("/delayed")) {
             System.out.println("Mensagens atrasadas: ");
@@ -149,11 +151,14 @@ public class CausalMulticastChannel {
             System.out.println("Clocks: ");
             System.out.println(this.getVectorClock());
         } else if (msg.startsWith("/buff")) {
-            System.out.println("Mensagens no buffer");
+            System.out.println("Buffer:");
             System.out.println(this.getBufferMessages());
         } else if (msg.startsWith("/sendDelayed")) {
             System.out.println("Mensagens atrasadas enviadas!");
             this.sendDelayedMessages();
+        } else if (msg.startsWith("/bannedMsgs")){
+            System.out.println("Mensagens banidas:");
+            System.out.println(this.getBannedMessages());
         } else {
             while (!validChars.contains(userDecision)) {
                 System.out.println("Deseja Bloquear alguém? (S/N)");

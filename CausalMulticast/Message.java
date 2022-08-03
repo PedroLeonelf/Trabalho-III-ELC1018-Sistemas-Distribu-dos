@@ -12,15 +12,15 @@ public class Message implements Serializable {
 
     int type;
     String text;
-    String from;
+    String origin;
 
     public Message() {
     }
 
-    public Message(int type, String text, String from) {
+    public Message(int type, String text, String origin) {
         this.type = type;
         this.text = text;
-        this.from = from;
+        this.origin = origin;
     }
 
     public int getType() {
@@ -31,8 +31,8 @@ public class Message implements Serializable {
         return text;
     }
 
-    public String getFrom() {
-        return from;
+    public String getOrigin() {
+        return origin;
     }
 
     public VectorClock getVectorClock() {
@@ -48,7 +48,7 @@ public class Message implements Serializable {
     public String toString() {
         return "Message{" +
                 ", text='" + text + '\'' +
-                ", from='" + from + '\'' +
+                ", origin='" + origin + '\'' +
                 ", vectorClock=" + vectorClock +
                 '}';
     }
