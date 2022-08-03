@@ -156,9 +156,6 @@ public class CausalMulticastChannel {
         } else if (msg.startsWith("/sendDelayed")) {
             System.out.println("Mensagens atrasadas enviadas!");
             this.sendDelayedMessages();
-        } else if (msg.startsWith("/banList")){
-            System.out.println("Mensagens banidas:");
-            System.out.println(this.getBannedMessages());
         } else {
             while (!validChars.contains(userDecision)) {
                 System.out.println("Deseja Bloquear alguém? (S/N)");
