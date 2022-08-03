@@ -86,10 +86,10 @@ public class CausalMulticastChannel {
     protected void compareAndManageVectorsClock(Message msg) {
         boolean isEqual = this.vectorClock.compare(msg.getVectorClock());
 
-//        System.out.println("Comparando vetor de " + msg.getFrom());
-//        System.out.println(msg.getVectorClock());
-//        System.out.println("Com o vetor local que esta: ");
-//        System.out.println(this.vectorClock);
+       System.out.println("Comparando vetor de " + msg.getFrom());
+       System.out.println(msg.getVectorClock());
+       System.out.println("Com o vetor local que esta: ");
+       System.out.println(this.vectorClock);
 
         if (isEqual) {
             this.vectorClock.incrementUser(msg.getFrom());

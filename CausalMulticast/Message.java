@@ -4,9 +4,9 @@ import java.io.Serializable;
 
 public class Message implements Serializable {
 
-    public static final int NORMAL_MSG = 0;
-    public static final int JOIN_MSG   = 1;
-    public static final int JOIN_RES   = 2;
+    public static final int NORMAL_MSG   = 0;
+    public static final int JOIN_MSG     = 1;
+    public static final int JOIN_USR_MSG = 2;
 
     private VectorClock vectorClock;
 

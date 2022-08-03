@@ -13,7 +13,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 /**
- * Thread responsável por receber e tratar as mensagens via multicast
+ * Thread para comunicação
  */
 @SuppressWarnings("deprecation")
 public class IndividualThread extends Thread {
@@ -71,7 +71,7 @@ public class IndividualThread extends Thread {
             case Message.NORMAL_MSG:
                 this.cm.compareAndManageVectorsClock(message);
                 break;
-            case Message.JOIN_RES:
+            case Message.JOIN_USR_MSG:
                 this.addUserToConnectedUsers(message.getFrom());
                 this.cm.addUserToVectorClock(message.getFrom());
                 break;
@@ -91,7 +91,7 @@ public class IndividualThread extends Thread {
     }
 
     /**
-     * Envia uma mensagem do tipo JOIN_RES para o usuário que conectou
+     * Envia uma mensagem do tipo JOIN_USR_MSG para o usuário que conectou
      * @param from ip do usuário que conectou
      * @throws IOException
      */
@@ -102,7 +102,7 @@ public class IndividualThread extends Thread {
                 asocket.connect(InetAddress.getByName("8.8.8.8"), 10002);
                 ip = asocket.getLocalAddress().getHostAddress();
             }
-            Message message = new Message(Message.JOIN_RES, "", ip);
+            Message message = new Message(Message.JOIN_USR_MSG, "", ip);
             ByteArrayOutputStream output = new ByteArrayOutputStream();
             ObjectOutputStream os = new ObjectOutputStream(output);
             os.writeObject(message);
