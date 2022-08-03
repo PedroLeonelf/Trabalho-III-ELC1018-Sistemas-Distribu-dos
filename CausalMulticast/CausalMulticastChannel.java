@@ -100,7 +100,7 @@ public class CausalMulticastChannel {
             this.bufferMessages.add(msg);
         }
         System.out.println("Clocks:" + this.getVectorClock());
-        System.out.println("Buffer:" + this.bufferMessages);
+        //System.out.println("Buffer:" + this.bufferMessages);
     }
 
     /**
@@ -156,7 +156,7 @@ public class CausalMulticastChannel {
         } else if (msg.startsWith("/sendDelayed")) {
             System.out.println("Mensagens atrasadas enviadas!");
             this.sendDelayedMessages();
-        } else if (msg.startsWith("/bannedMsgs")){
+        } else if (msg.startsWith("/banList")){
             System.out.println("Mensagens banidas:");
             System.out.println(this.getBannedMessages());
         } else {
