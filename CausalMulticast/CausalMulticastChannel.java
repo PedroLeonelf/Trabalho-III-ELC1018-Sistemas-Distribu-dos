@@ -6,12 +6,12 @@ import java.io.ObjectOutputStream;
 import java.net.*;
 import java.util.*;
 
-public class CMChannel {
+public class CausalMulticastChannel {
 
     ICausalMulticast causalMulticast;
     String ip;
     String groupIp;
-    ReceiveThread receiveThread;
+    IndividualThread receiveThread;
     MulticastSocket socket;
     private final DatagramSocket unicastSocket;
     private final VectorClock vectorClock;
@@ -24,13 +24,13 @@ public class CMChannel {
      * @param causalMulticast o cliente
      * @throws IOException exceção caso algum problema de IO ocorra
      */
-    public CMChannel(ICausalMulticast causalMulticast) throws IOException {
+    public CausalMulticastChannel(ICausalMulticast causalMulticast) throws IOException {
         this.causalMulticast = causalMulticast;
         this.bufferMessages = new ArrayList<>();
         this.vectorClock = new VectorClock();
         this.unicastSocket = new DatagramSocket(3030);
         this.socket = new MulticastSocket(2020);
-        this.receiveThread = new ReceiveThread(this);
+        this.receiveThread = new IndividualThread(this);
         this.bannedMessages = new LinkedHashMap<>();
         this.groupIp = "225.0.0.0";
         receiveThread.start();
@@ -139,7 +139,7 @@ public class CMChannel {
         String validChars = yesChars + noChars;
         Scanner scanner = new Scanner(System.in);
 
-        if (msg.startsWith("/list")) {
+        if (msg.startsWith("/users")) {
             System.out.println("Usuários conectados: ");
             this.printArray(this.getConnectedUsers());
         } else if (msg.startsWith("/delayed")) {
@@ -152,7 +152,7 @@ public class CMChannel {
             System.out.println("Mensagens no buffer");
             System.out.println(this.getBufferMessages());
         } else if (msg.startsWith("/sendDelayed")) {
-            System.out.println("Enviando mensagens atrasadas...");
+            System.out.println("Mensagens atrasadas enviadas!");
             this.sendDelayedMessages();
         } else {
             while (!validChars.contains(userDecision)) {

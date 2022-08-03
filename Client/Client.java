@@ -1,6 +1,6 @@
 package Client;
 
-import CausalMulticast.CMChannel;
+import CausalMulticast.CausalMulticastChannel;
 import CausalMulticast.ICausalMulticast;
 
 import java.io.IOException;
@@ -10,7 +10,7 @@ import java.util.Scanner;
 
 public class Client implements ICausalMulticast {
     Scanner scanner = new Scanner(System.in);
-    CMChannel cm;
+    CausalMulticastChannel cm;
 
     public static void main(String[] args) throws IOException {
         Client client = new Client();
@@ -25,22 +25,18 @@ public class Client implements ICausalMulticast {
     }
 
     /**
-     * Instancia o CMChannel
+     * Instancia o canal do multicast
      * @throws IOException exceção caso algum problema de IO ocorra
      */
     public void join() throws IOException {
-        this.cm = new CMChannel(this);
+        this.cm = new CausalMulticastChannel(this);
     }
 
     /**
-     * Método a ser invocado via callback pelo CMChannel
-     * Printa a mensagem em rosa para facilitar o debug
-     * @param message mensagem recebida do CMChannel
+     * Método a ser invocado via callback pelo canal do multicast
+     * @param message mensagem recebida pelo canal do multicast
      */
     public void deliver(String message) {
-        String RESET_ANSI_COLOR = "\033[0m";
-        String PINK_ANSI_COLOR = "\033[38;5;206m";
-
-        System.out.printf("%s%s%s\n", PINK_ANSI_COLOR, message, RESET_ANSI_COLOR);
+        System.out.printf("%s\n", message);
     }
 }

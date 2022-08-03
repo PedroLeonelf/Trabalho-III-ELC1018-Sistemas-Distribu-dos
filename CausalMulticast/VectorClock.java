@@ -8,7 +8,7 @@ import java.util.Map;
 public class VectorClock implements Serializable {
 
     /**
-     * IP do Usuário, valor do clock
+     * IP do Usuário, clock do usuário
      */
     private Map<String, Integer> vectorClock;
 
@@ -17,8 +17,7 @@ public class VectorClock implements Serializable {
     }
 
     /**
-     * Verifica se o usuário já existe no vectorClock,
-     * caso não exista é adicionado o usuário <ip, 0>
+     * Caso o usuario não exista é adicionado o usuário <ip, 0> no vectorClock
      * @param user Usuário a ser criado
      */
     public void createUser(String user) {
@@ -28,9 +27,8 @@ public class VectorClock implements Serializable {
     }
 
     /**
-     * Verifica se o usuário já existe no VectorClock,
-     * caso exista é incremetando o valor do usuário
-     * @param user usuário a ser incrementado
+     * Caso o usuário exista no vectorClock incrementa-se o clock.
+     * @param user usuário a ter clock incrementado
      */
     public void incrementUser(String user) {
         int value = vectorClock.get(user) + 1;
@@ -40,8 +38,7 @@ public class VectorClock implements Serializable {
     }
 
     /**
-     * Compara se todas as entradas desse VectorClock é igual
-     * ao VectorClock v2 passado por parametro e retorna um boolean
+     * Compara e retorna se os valores de um vectorClock é igual ao de um vectorClock v2
      *
      * Primeiro itera sobre o v2, verificando se todas as entradas existem
      * neste VectorClock, depois itera sobre este VectorClock verificando
@@ -53,14 +50,14 @@ public class VectorClock implements Serializable {
      */
     public Boolean compare(VectorClock v2) {
         try {
-            for(String user : v2.vectorClock.keySet()) {
+            for(String user : v2.vectorClock.keySet()) {  // v1 != v2
                 if(!this.vectorClock.get(user).equals(v2.vectorClock.get(user))) {
                     return false;
                 }
             }
 
             for(String user : this.vectorClock.keySet()) {
-                if(!v2.vectorClock.containsKey(user)) {
+                if(!v2.vectorClock.containsKey(user)) { // v2 != v1
                     return false;
                 }
             }
@@ -75,7 +72,7 @@ public class VectorClock implements Serializable {
 
     public void setVector(Map<String, Integer> vector) {
         for(String key : vector.keySet()) {
-            vectorClock.put(key, vector.get(key));
+            vectorClock.put(key, vector.get(key)); //vectorClock <- vector
         }
     }
 

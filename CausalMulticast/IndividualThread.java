@@ -16,15 +16,15 @@ import java.util.ArrayList;
  * Thread responsável por receber e tratar as mensagens via multicast
  */
 @SuppressWarnings("deprecation")
-public class ReceiveThread extends Thread {
+public class IndividualThread extends Thread {
 
     MulticastSocket socket;
     InetAddress group;
-    CMChannel cm;
+    CausalMulticastChannel cm;
 
     ArrayList<String> connectedUsers;
 
-    public ReceiveThread(CMChannel cm) {
+    public IndividualThread(CausalMulticastChannel cm) {
         this.socket = cm.socket;
         this.cm = cm;
     }
@@ -37,8 +37,8 @@ public class ReceiveThread extends Thread {
             this.socket.joinGroup(this.group);
 
             while (true) {
-                byte[] buf = new byte[1000];
-                DatagramPacket resp = new DatagramPacket(buf, buf.length);
+                byte[] buffer = new byte[1000];
+                DatagramPacket resp = new DatagramPacket(buffer, buffer.length);
                 this.socket.receive(resp);
 
                 byte[] data = resp.getData();
@@ -60,11 +60,10 @@ public class ReceiveThread extends Thread {
      * @throws IOException exceção caso algum problema de IO ocorra
      */
     public void manageMessage(Message message) throws IOException {
-        String RESET_ANSI_COLOR = "\033[0m";
-        String GREEN_ANSI_COLOR = "\u001B[32m";
+
         switch (message.getType()) {
             case Message.JOIN_MSG:
-                System.out.printf("%s[%s]: Entrou no chat!%s\n", GREEN_ANSI_COLOR, message.getFrom(), RESET_ANSI_COLOR);
+                System.out.printf("[%s]: Entrou no chat!\n", message.getFrom());
                 this.addUserToConnectedUsers(message.getFrom());
                 this.cm.addUserToVectorClock(message.getFrom());
                 this.joinResponse(message.getFrom());
