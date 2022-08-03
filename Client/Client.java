@@ -13,14 +13,14 @@ public class Client implements ICausalMulticast {
     CMChannel cm;
 
     public static void main(String[] args) throws IOException {
-        Client c = new Client();
-        String msg;
+        Client client = new Client();
+        String message;
 
-        c.join();
+        client.join();
 
         while(true) {
-            msg = c.scanner.nextLine();
-            c.cm.mcsend(msg);
+            message = client.scanner.nextLine();
+            client.cm.mcsend(message);
         }
     }
 
@@ -35,12 +35,12 @@ public class Client implements ICausalMulticast {
     /**
      * Método a ser invocado via callback pelo CMChannel
      * Printa a mensagem em rosa para facilitar o debug
-     * @param msg mensagem recebida do CMChannel
+     * @param message mensagem recebida do CMChannel
      */
-    public void deliver(String msg) {
+    public void deliver(String message) {
         String RESET_ANSI_COLOR = "\033[0m";
         String PINK_ANSI_COLOR = "\033[38;5;206m";
 
-        System.out.printf("%s%s%s\n", PINK_ANSI_COLOR, msg, RESET_ANSI_COLOR);
+        System.out.printf("%s%s%s\n", PINK_ANSI_COLOR, message, RESET_ANSI_COLOR);
     }
 }

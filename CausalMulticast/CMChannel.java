@@ -32,7 +32,7 @@ public class CMChannel {
         this.socket = new MulticastSocket(2020);
         this.receiveThread = new ReceiveThread(this);
         this.bannedMessages = new LinkedHashMap<>();
-        this.groupIp = "224.0.0.0";
+        this.groupIp = "225.0.0.0";
         receiveThread.start();
         this.join();
     }
@@ -139,23 +139,21 @@ public class CMChannel {
         String validChars = yesChars + noChars;
         Scanner scanner = new Scanner(System.in);
 
-        if (msg.startsWith("/connected")) {
+        if (msg.startsWith("/list")) {
             System.out.println("Usuários conectados: ");
             this.printArray(this.getConnectedUsers());
         } else if (msg.startsWith("/delayed")) {
             System.out.println("Mensagens atrasadas: ");
             System.out.println(Collections.singletonList(this.getBannedMessages()));
-        } else if (msg.startsWith("/vector")) {
-            System.out.println("Vector Clock: ");
+        } else if (msg.startsWith("/clock")) {
+            System.out.println("Clocks: ");
             System.out.println(this.getVectorClock());
-        } else if (msg.startsWith("/buffered")) {
+        } else if (msg.startsWith("/buff")) {
             System.out.println("Mensagens no buffer");
             System.out.println(this.getBufferMessages());
         } else if (msg.startsWith("/sendDelayed")) {
             System.out.println("Enviando mensagens atrasadas...");
             this.sendDelayedMessages();
-        } else if (msg.startsWith("/myVectorClock")) {
-            System.out.println(this.getVectorClock());
         } else {
             while (!validChars.contains(userDecision)) {
                 System.out.println("Deseja Bloquear alguém? (S/N)");
@@ -230,7 +228,7 @@ public class CMChannel {
     private void printArray(ArrayList<String> list) {
         int index = 0;
         for (String s : list) {
-            System.out.println(index++ + " - " + s);
+            System.out.println(++index + " - " + s);
         }
     }
 
