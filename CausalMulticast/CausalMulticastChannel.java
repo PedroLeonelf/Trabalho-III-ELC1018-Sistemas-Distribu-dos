@@ -15,10 +15,10 @@ public class CausalMulticastChannel {
     MulticastSocket socket;
     private final DatagramSocket unicastSocket;
     private final VectorClock vectorClock;
-    // Mensagens banidas que poderão ser enviadas após o comando /sendDelayed
-    LinkedHashMap<Message, String> bannedMessages;
-    // Buffer com as mensagens atrasadas enquanto espera a sincronização
-    ArrayList<Message> bufferMessages;
+    // Mensagens atrasadas que poderão ser enviadas após o comando /sendDelayed
+    LinkedHashMap<Message, String> delayedMessages;
+    // Buffer com as mensagens bloqueadas enquanto espera a sincronização
+    ArrayList<Message> bloquedMessages;
 
     /**
      * @param causalMulticast o cliente
@@ -26,12 +26,12 @@ public class CausalMulticastChannel {
      */
     public CausalMulticastChannel(ICausalMulticast causalMulticast) throws IOException {
         this.causalMulticast = causalMulticast;
-        this.bufferMessages = new ArrayList<>();
+        this.bloquedMessages = new ArrayList<>();
         this.vectorClock = new VectorClock();
         this.unicastSocket = new DatagramSocket(3030);
         this.socket = new MulticastSocket(2020);
         this.receiveThread = new IndividualThread(this);
-        this.bannedMessages = new LinkedHashMap<>();
+        this.delayedMessages = new LinkedHashMap<>();
         this.groupIp = "225.0.0.0";
         receiveThread.start();
         this.join();
@@ -85,9 +85,7 @@ public class CausalMulticastChannel {
     protected void compareAndManageVectorsClock(Message msg) {
         boolean isEqual = this.vectorClock.compare(msg.getVectorClock());
 
-    //    System.out.println("Comparando vetor de " + msg.getOrigin());
-    //    System.out.println(msg.getVectorClock());
-    //    System.out.println("Com o vetor local que esta: ");
+
 
 
         if (isEqual) {
@@ -96,17 +94,18 @@ public class CausalMulticastChannel {
             this.handleBufferMessages();
         } else {
             System.out.println("Guardando a mensagem: " + msg);
-            this.bufferMessages.add(msg);
+            this.bloquedMessages.add(msg);
         }
         System.out.println("Clocks:" + this.getVectorClock());
-        System.out.println("Buffer:" + this.bufferMessages);
+        System.out.println("BloquedMessages:" + this.bloquedMessages);
+        System.out.println("DelayedMessages:" + this.delayedMessages);
     }
 
     /**
      * Ao receber uma mensagem, verifica se não é a que estava travando alguma das mensagens guardada no buffer
      */
     private void handleBufferMessages() {
-        if (this.bufferMessages.isEmpty()) {
+        if (this.bloquedMessages.isEmpty()) {
             return;
         }
 
@@ -114,14 +113,13 @@ public class CausalMulticastChannel {
 
         while (hasFoundMessageInBuffer) {
             hasFoundMessageInBuffer = false;
-            ArrayList<Message> auxList = new ArrayList<>(this.bufferMessages);
+            ArrayList<Message> auxList = new ArrayList<>(this.bloquedMessages);
 
             for (Message bufferMsg : auxList) {
                 hasFoundMessageInBuffer = this.vectorClock.compare(bufferMsg.getVectorClock());
                 if (hasFoundMessageInBuffer) {
-                    System.out.println("Incrementando o clock para receber uma mensagem delayed");
                     this.vectorClock.incrementUser(bufferMsg.getOrigin());
-                    this.bufferMessages.remove(bufferMsg);
+                    this.bloquedMessages.remove(bufferMsg);
                     this.causalMulticast.deliver("[" + bufferMsg.getOrigin() + "]: " + bufferMsg.getText());
                 }
             }
@@ -145,7 +143,7 @@ public class CausalMulticastChannel {
             this.printArray(this.getConnectedUsers());
         } else if (msg.startsWith("/delayList")) {
             System.out.println("Mensagens atrasadas: ");
-            System.out.println(Collections.singletonList(this.getBannedMessages()));
+            System.out.println(Collections.singletonList(this.getbloquedMessages()));
         } else if (msg.startsWith("/clock")) {
             System.out.println("Clocks: ");
             System.out.println(this.getVectorClock());
@@ -192,7 +190,7 @@ public class CausalMulticastChannel {
         for (String user : receiveThread.getConnectedUsers()) {
             if (user.equals(bannedIp)) {
                 System.out.println("[" + user + "]: Bloqueado, adicionarei a mensagem às bloqueadas!");
-                this.bannedMessages.put(message, user);
+                this.delayedMessages.put(message, user);
             } else {
                 System.out.println("Enviando msg para: " + user);
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length, InetAddress.getByName(user), 2020);
@@ -202,10 +200,10 @@ public class CausalMulticastChannel {
     }
 
     /**
-     * Envia as mensagens atrasadas guardadas no buffer bannedMessages via unicast
+     * Envia as mensagens atrasadas guardadas no buffer bloquedMessages via unicast
      */
     protected void sendDelayedMessages() {
-        for (Map.Entry<Message, String> entry : this.bannedMessages.entrySet()) {
+        for (Map.Entry<Message, String> entry : this.delayedMessages.entrySet()) {
             try {
                 ByteArrayOutputStream output = new ByteArrayOutputStream();
                 ObjectOutputStream os = new ObjectOutputStream(output);
@@ -221,7 +219,7 @@ public class CausalMulticastChannel {
             }
         }
 
-        this.bannedMessages.clear();
+        this.delayedMessages.clear();
     }
 
     /**
@@ -240,11 +238,11 @@ public class CausalMulticastChannel {
     }
 
     protected ArrayList<Message> getBufferMessages() {
-        return bufferMessages;
+        return bloquedMessages;
     }
 
-    protected LinkedHashMap<Message, String> getBannedMessages() {
-        return this.bannedMessages;
+    protected LinkedHashMap<Message, String> getbloquedMessages() {
+        return this.delayedMessages;
     }
 
     protected ArrayList<String> getConnectedUsers() {
