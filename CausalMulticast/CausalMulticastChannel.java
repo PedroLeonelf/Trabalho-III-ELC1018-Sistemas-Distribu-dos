@@ -144,7 +144,7 @@ public class CausalMulticastChannel {
             System.out.println("Clocks: ");
             System.out.println(this.getVectorClock());
         } else if (msg.startsWith("/bloquedList")) {
-            System.out.println("Buffer:");
+            System.out.println("Mensagens bloqueadas:");
             System.out.println(this.getBufferMessages());
         } else if (msg.startsWith("/sendDelayed")) {
             System.out.println("Mensagens atrasadas enviadas!");
