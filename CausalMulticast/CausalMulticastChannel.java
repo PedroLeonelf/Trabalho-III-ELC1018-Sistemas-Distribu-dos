@@ -15,7 +15,7 @@ public class CausalMulticastChannel {
     MulticastSocket socket;
     private final DatagramSocket unicastSocket;
     private final VectorClock vectorClock;
-    // Mensagens atrasadas que poderão ser enviadas após o comando /sendDelayed
+    // Buffer de mensagens atrasadas que poderão ser enviadas após o comando /sendDelayed
     LinkedHashMap<Message, String> delayedMessages;
     // Buffer com as mensagens bloqueadas enquanto espera a sincronização
     ArrayList<Message> bloquedMessages;
@@ -84,10 +84,6 @@ public class CausalMulticastChannel {
      */
     protected void compareAndManageVectorsClock(Message msg) {
         boolean isEqual = this.vectorClock.compare(msg.getVectorClock());
-
-
-
-
         if (isEqual) {
             this.vectorClock.incrementUser(msg.getOrigin());
             this.causalMulticast.deliver("[" + msg.getOrigin() + "]: " + msg.getText());
