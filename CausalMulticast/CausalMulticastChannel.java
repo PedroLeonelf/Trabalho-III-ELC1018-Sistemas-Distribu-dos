@@ -17,7 +17,7 @@ public class CausalMulticastChannel {
     private final VectorClock vectorClock;
     // Mensagens banidas que poderão ser enviadas após o comando /sendDelayed
     LinkedHashMap<Message, String> bannedMessages;
-    // Buffer com as mensagens guardadas enquanto espera a sincronização
+    // Buffer com as mensagens atrasadas enquanto espera a sincronização
     ArrayList<Message> bufferMessages;
 
     /**
@@ -60,7 +60,6 @@ public class CausalMulticastChannel {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         ObjectOutputStream os = new ObjectOutputStream(output);
         os.writeObject(message);
-
         byte[] buffer;
         buffer = output.toByteArray();
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length, InetAddress.getByName(this.groupIp), 2020);
@@ -100,7 +99,7 @@ public class CausalMulticastChannel {
             this.bufferMessages.add(msg);
         }
         System.out.println("Clocks:" + this.getVectorClock());
-        //System.out.println("Buffer:" + this.bufferMessages);
+        System.out.println("Buffer:" + this.bufferMessages);
     }
 
     /**
