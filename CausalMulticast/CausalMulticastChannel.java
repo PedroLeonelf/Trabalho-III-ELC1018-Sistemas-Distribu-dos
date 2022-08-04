@@ -98,7 +98,7 @@ public class CausalMulticastChannel {
     }
 
     /**
-     * Ao receber uma mensagem, verifica se não é a que estava travando alguma das mensagens guardada no buffer
+     * Ao receber uma mensagem, verifica se não é a que estava travando alguma das mensagens guardada no buffer do bloquedMessages
      */
     private void handleBufferMessages() {
         if (this.bloquedMessages.isEmpty()) {
@@ -185,7 +185,7 @@ public class CausalMulticastChannel {
         buffer = output.toByteArray();
         for (String user : receiveThread.getConnectedUsers()) {
             if (user.equals(bannedIp)) {
-                System.out.println("[" + user + "]: Bloqueado, adicionarei a mensagem às bloqueadas!");
+                System.out.println("[" + user + "]: Bloqueado, adicionarei a mensagem às atrasadas!");
                 this.delayedMessages.put(message, user);
             } else {
                 System.out.println("Enviando msg para: " + user);
@@ -196,7 +196,7 @@ public class CausalMulticastChannel {
     }
 
     /**
-     * Envia as mensagens atrasadas guardadas no buffer bloquedMessages via unicast
+     * Envia as mensagens atrasadas guardadas no buffer delayedMessages via unicast
      */
     protected void sendDelayedMessages() {
         for (Map.Entry<Message, String> entry : this.delayedMessages.entrySet()) {
